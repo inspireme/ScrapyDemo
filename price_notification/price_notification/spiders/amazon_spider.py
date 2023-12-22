@@ -27,6 +27,10 @@ class AmazonSpider(scrapy.Spider):
         'FEEDS': { 'data/amazon_items.csv': { 'format': 'csv', 'overwrite': False}}
     }
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+    }
+
     allowed_domains = ["www.amazon.co.jp"]
     #cloudflare 403対応
     scraper = cloudscraper.create_scraper(browser={'browser': 'chrome','platform': 'windows', 'desktop': True, 'mobile': False})
@@ -40,7 +44,7 @@ class AmazonSpider(scrapy.Spider):
             }
         }
         for product_name, target in urls.items():
-                yield scrapy.Request(url=target['url'], callback=self.parse, cb_kwargs={'target_product_name': product_name, 'target_price' : target['target_price']})
+            yield scrapy.Request(url=target['url'], header=self.headers, callback=self.parse, cb_kwargs={'target_product_name': product_name, 'target_price' : target['target_price']})
 
     def parse(self, response, target_product_name, target_price):
         items =  response.css("div.a-section.a-spacing-small.a-spacing-top-small")
